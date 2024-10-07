@@ -1,0 +1,38 @@
+{
+    "name": "davodm/dgcontent-ci",
+    "description": "A simple CodeIgniter 4 package to interact with DGTTeam Content API",
+    "type": "library",
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "codeigniter4/framework": "^4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "DGContent\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "davodm",
+            "email": "i@davod.me"
+        }
+    ],
+    "keywords": [
+        "codeigniter4",
+        "content-api",
+        "caching",
+        "php",
+        "api-client",
+        "dg-content-ci"
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": false,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/davodm/dgcontent-ci.git"
+    }
+}
