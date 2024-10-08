@@ -48,9 +48,19 @@ class DgContent
             throw new InvalidArgumentException('DG Content API key is required.');
         }
 
-        // Check for website key.
+        // Initialize the websiteKey:
+        // If not set via environment, use CodeIgniter's base URL domain.
         if (empty($this->config->websiteKey)) {
-            throw new InvalidArgumentException('DG Content website key is required.');
+            helper('url');
+            $baseURL = base_url(); // e.g., 'https://example.com/'
+            $parsedURL = parse_url($baseURL,PHP_URL_HOST);
+            if(!empty($parsedURL)) {
+                $this->config->websiteKey = $parsedURL;
+            }
+            // If still empty, throw an exception.
+            if (empty($this->config->websiteKey)) {
+                throw new InvalidArgumentException('Website key is required for filtering content.');
+            }
         }
 
         // Initialize CURLRequest with base URI and headers.
