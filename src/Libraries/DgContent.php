@@ -172,12 +172,16 @@ class DgContent
      *
      * Implements caching to reduce API calls.
      *
+     * @param bool $websiteOnly Whether to filter categories by website key.
      * @return array|null Array of categories or null on failure.
      */
-    public function getCategories(): ?array
+    public function getCategories(bool $websiteOnly = false): ?array
     {
         // Define the cache key for categories.
         $cacheKey = 'dg_content_categories';
+        if($websiteOnly) {
+            $cacheKey .= '_'.$this->config->websiteKey;
+        }
 
         // Attempt to retrieve data from cache.
         if ($cachedData = $this->cache->get($cacheKey)) {
@@ -186,6 +190,9 @@ class DgContent
 
         // Define query parameters with 'resource' set to 'categories'.
         $params = ['resource' => 'categories'];
+        if($websiteOnly) {
+            $params['website'] = $this->config->websiteKey;
+        }
 
         // Make the GET request to the API.
         $response = $this->makeRequest($params,'get');
