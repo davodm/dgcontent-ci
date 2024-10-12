@@ -83,7 +83,7 @@ if ($posts['posts']) {
 The package provides the following functions to interact with the DGTTeam Content API:
 - `getPosts($params)`: Fetch posts based on the specified parameters and return `total` (as total number for pagination) and `posts` array.
 - `getPost($id)`: Fetch a single post by ID.
-- `getCategories()`: Fetch all available categories.
+- `getCategories($websiteOnly = false)`: Fetch all available categories. If `$websiteOnly` is set to `true`, it will only return categories that have posts for the current website.
 - `updateStats($type, $id, $count=1)`: Update post statistics (views, likes, dislikes).
 
 ### Parameters for `getPosts($params)`
