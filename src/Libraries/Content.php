@@ -259,6 +259,41 @@ class Content
     }
 
     /**
+     * Validate and fix the parameters for sending to the API.
+     *
+     * @param array $params Data parameters for the request.
+     * @return array Fixed and validated parameters.
+     */
+    protected function reviewParams(array $params): array
+    {
+        // Change array to string with comma separated values.
+        if(isset($params['tags']) && is_array($params['tags'])) {
+            $params['tags'] = implode(',', $params['tags']);
+        }
+        if(isset($params['category']) && is_array($params['category'])) {
+            $params['category'] = implode(',', $params['category']);
+        }
+
+        // Value of offset and limit must be positive integer
+        if(isset($params['offset']) && !is_int($params['offset'])) {
+            throw new InvalidArgumentException('Offset must be a positive integer.');
+        }
+        if(isset($params['limit']) && !is_int($params['limit'])) {
+            throw new InvalidArgumentException('Limit must be a positive integer.');
+        }
+
+        // value of count must be positive integer
+        if(isset($params['count']) && !is_int($params['count'])) {
+            throw new InvalidArgumentException('Count must be a positive integer.');
+        }
+
+        // Add the website key to the parameters.
+        $params['website'] = $this->config->websiteKey;
+
+        return $params;
+    }
+
+    /**
      * Makes a GET/POST request to the API with the specified query parameters.
      *
      * @param array $params Data parameters for the request.
@@ -268,14 +303,17 @@ class Content
     protected function makeRequest(array $params, string $method = 'get'): array
     {
         try {
+            // Validate and fix the parameters.
+            $params = $this->reviewParams($params);
+            
             $opts = [];
             if($method == 'get') {
                 $opts = [
-                    'query' => array_merge($params, ['website' => $this->config->websiteKey]),
+                    'query' => $params,
                 ];
             } else {
                 $opts = [
-                    'json' => array_merge($params, ['website' => $this->config->websiteKey]),
+                    'json' => $params,
                 ];
             }
             // Send the request with parameters.
