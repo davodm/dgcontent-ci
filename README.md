@@ -60,7 +60,7 @@ The package comes with a configuration file located at `src/Config/DgContentCI.p
 You can initialize the library directly in your controller.
 
 ```php
-$dgContent = new \DgContent();
+$dgContent = new \DGContent\DGContent();
 $params = [
     'limit' => 5,
     'offset' => 0,
@@ -89,8 +89,9 @@ The package provides the following functions to interact with the DGTTeam Conten
 ### Parameters for `getPosts($params)`
 - `limit`: Number of posts to fetch (default: 10).
 - `offset`: Offset for pagination (default: 0).
-- `category`: Filter posts by category.
-- `tags`: Filter posts by tags.
+- `category`: Filter posts by category. (optional)
+- `tags`: Filter posts by tags. (optional)
+- `language`: Filter posts by language code e.g. fa, en, es, fr. (optional)
 
 ## Error Handling
 The package gracefully handles API errors and logs them for debugging purposes. If an error occurs during API requests, the package will throw an exception with a meaningful error message and you can catch it in your application to log or display the error.

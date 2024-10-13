@@ -1,10 +1,10 @@
 <?php
 
-namespace DgContentCI\Libraries;
+namespace DGContent;
 
 use CodeIgniter\HTTP\CURLRequest;
 use CodeIgniter\HTTP\ResponseInterface;
-use DgContent\Config\DgContentCI;
+use DGContent\Config\DGContentCI;
 use InvalidArgumentException;
 
 /**
