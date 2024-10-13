@@ -1,6 +1,6 @@
 <?php
 
-namespace DGContent;
+namespace DGContent\Libraries;
 
 use CodeIgniter\HTTP\CURLRequest;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -8,13 +8,13 @@ use DGContent\Config\DGContentCI;
 use InvalidArgumentException;
 
 /**
- * Class DgContent
+ * Class Content
  *
  * Library class to interact with the DGTTeam Content API.
  *
  * @package DgContentCI\Services
  */
-class DgContent
+class Content
 {
     /**
      * @var DgContentCI Configuration instance.

@@ -54,13 +54,13 @@ Parameters:
 * `DGCONTENT_API_BASE_URL` (Optional) Base URL for the DGTTeam Content API if it's different from the default.
 
 2. Configuration File
-The package comes with a configuration file located at `src/Config/DgContentCI.php`. You can customize default settings by modifying this file if necessary.
+The package comes with a configuration file located at `src/Config/DGContentCI.php`. You can customize default settings by modifying this file if necessary.
 
 ## Usage
 You can initialize the library directly in your controller.
 
 ```php
-$dgContent = new \DGContent\DGContent();
+$dgContent = new \DGContent\Libraries\Content();
 $params = [
     'limit' => 5,
     'offset' => 0,
