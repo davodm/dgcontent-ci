@@ -118,6 +118,17 @@ class Content
         // Make the GET request to the API.
         $response = $this->makeRequest($params,'get');
 
+        // Fix the date to be CI I18n\Time object
+        $response = array_map(function($post){
+            if(isset($post['createdAt'])){
+                $post['createdAt']=\CodeIgniter\I18n\Time::parse($post['createdAt']);
+            }
+            if(isset($post['updatedAt'])){
+                $post['updatedAt']=\CodeIgniter\I18n\Time::parse($post['updatedAt']);
+            }
+            return $post;
+        },$response['posts']);
+
         // Cache the response data for the configured duration.
         if($this->config->cacheDuration > 0) {
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
@@ -158,6 +169,14 @@ class Content
 
         // Make the GET request to the API.
         $response = $this->makeRequest($params,'get');
+
+        // Fix the date to be CI I18n\Time object
+        if(isset($response['createdAt'])){
+            $response['createdAt']=\CodeIgniter\I18n\Time::parse($response['createdAt']);
+        }
+        if(isset($response['updatedAt'])){
+            $response['updatedAt']=\CodeIgniter\I18n\Time::parse($response['updatedAt']);
+        }
 
         // Cache the response data
         if($this->config->cacheDuration > 0) {
