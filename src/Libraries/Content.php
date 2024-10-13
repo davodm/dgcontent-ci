@@ -12,12 +12,12 @@ use InvalidArgumentException;
  *
  * Library class to interact with the DGTTeam Content API.
  *
- * @package DgContentCI\Services
+ * @package DGContent\Libraries
  */
 class Content
 {
     /**
-     * @var DgContentCI Configuration instance.
+     * @var DGContentCI Configuration instance.
      */
     protected $config;
 
@@ -32,16 +32,16 @@ class Content
     protected $cache;
 
     /**
-     * DgContentCIService constructor.
+     * Content Library constructor.
      *
-     * Initializes the service with configuration, HTTP client, and caching.
+     * Initializes the library with configuration, HTTP client, and caching.
      *
-     * @param DgContentCI|null $config Optional configuration instance.
+     * @param DGContentCI|null $config Optional configuration instance.
      */
-    public function __construct(DgContentCI $config = null)
+    public function __construct(DGContentCI $config = null)
     {
         // Use provided config or instantiate a new one.
-        $this->config = $config ?: new DgContentCI();
+        $this->config = $config ?: new DGContentCI();
 
         // Check for required API key.
         if (empty($this->config->apiKey)) {
