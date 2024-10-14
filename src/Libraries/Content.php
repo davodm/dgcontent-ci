@@ -121,11 +121,11 @@ class Content
         // Fix the date to be CI I18n\Time object
         if (!empty($response['posts'])) {
             $response['posts'] = array_map(function ($post) {
-                if (isset($post['createdAt'])) {
-                    $parsedCreatedAt = \CodeIgniter\I18n\Time::parse($post['post']['createdAt']);
+                if (!empty($post['createdAt'])) {
+                    $parsedCreatedAt = \CodeIgniter\I18n\Time::parse($post['createdAt']);
                     $post['createdAt'] = $parsedCreatedAt; // Assign Time Object
                 }
-                if (isset($post['updatedAt'])) {
+                if (!empty($post['updatedAt'])) {
                     $parsedUpdatedAt = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
                     $post['updatedAt'] = $parsedUpdatedAt; // Assign Time Object
                 }
