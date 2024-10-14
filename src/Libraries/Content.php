@@ -403,4 +403,16 @@ class Content
         // Handle non-2xx status codes as an error.
         throw new \Exception('DG Content API Error: HTTP ' . $statusCode);
     }
+
+    /**
+     * Clears the cache for all cached items.
+     * Using CI4's Cache manager
+     *
+     * @return int Number of items deleted from the cache.
+     */
+    public function clearCache(): int
+    {
+        // Clear cache with glob style pattern to match cached items key
+        return $this->cache->deleteMatching('dg_content_*');
+    }
 }
