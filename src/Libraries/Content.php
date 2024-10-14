@@ -134,7 +134,7 @@ class Content
         }
 
         // Cache the response data for the configured duration.
-        if ($this->config->cacheDuration > 0) {
+        if ($this->config->cacheDuration > 0 && !empty($response['posts'])) {
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
         return [
@@ -185,8 +185,8 @@ class Content
         }
 
         // Cache the response data
-        if ($this->config->cacheDuration > 0) {
-            $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
+        if ($this->config->cacheDuration > 0 && !empty($post)) {
+            $this->cache->save($cacheKey, $post, $this->config->cacheDuration);
         }
 
         return $post;
@@ -223,8 +223,8 @@ class Content
         $response = $this->makeRequest($params, 'get');
 
         // Cache the response data
-        if ($this->config->cacheDuration > 0) {
-            $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
+        if ($this->config->cacheDuration > 0 && !empty($response['categories'])) {
+            $this->cache->save($cacheKey, $response['categories'], $this->config->cacheDuration);
         }
 
         return $response['categories'] ?? [];
