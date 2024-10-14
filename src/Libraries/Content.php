@@ -53,8 +53,8 @@ class Content
         if (empty($this->config->websiteKey)) {
             helper('url');
             $baseURL = base_url(); // e.g., 'https://example.com/'
-            $parsedURL = parse_url($baseURL,PHP_URL_HOST);
-            if(!empty($parsedURL)) {
+            $parsedURL = parse_url($baseURL, PHP_URL_HOST);
+            if (!empty($parsedURL)) {
                 $this->config->websiteKey = $parsedURL;
             }
             // If still empty, throw an exception.
@@ -85,7 +85,7 @@ class Content
      */
     public function setCacheDuration(int $seconds): self
     {
-        if($seconds < 0) {
+        if ($seconds < 0) {
             throw new InvalidArgumentException('Cache duration must be a positive integer.');
         }
         $this->config->cacheDuration = $seconds;
@@ -116,21 +116,25 @@ class Content
         }
 
         // Make the GET request to the API.
-        $response = $this->makeRequest($params,'get');
+        $response = $this->makeRequest($params, 'get');
 
         // Fix the date to be CI I18n\Time object
-        $response = array_map(function($post){
-            if(isset($post['createdAt'])){
-                $post['createdAt']=\CodeIgniter\I18n\Time::parse($post['createdAt']);
-            }
-            if(isset($post['updatedAt'])){
-                $post['updatedAt']=\CodeIgniter\I18n\Time::parse($post['updatedAt']);
-            }
-            return $post;
-        },$response['posts']);
+        if (!empty($response['posts'])) {
+            $response['posts'] = array_map(function ($post) {
+                if (isset($post['createdAt'])) {
+                    $parsedCreatedAt = \CodeIgniter\I18n\Time::parse($post['createdAt']);
+                    $post['createdAt'] = $parsedCreatedAt; // Assign Time Object
+                }
+                if (isset($post['updatedAt'])) {
+                    $parsedUpdatedAt = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
+                    $post['updatedAt'] = $parsedUpdatedAt; // Assign Time Object
+                }
+                return $post;
+            }, $response['posts']);
+        }
 
         // Cache the response data for the configured duration.
-        if($this->config->cacheDuration > 0) {
+        if ($this->config->cacheDuration > 0) {
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
         return [
@@ -168,21 +172,21 @@ class Content
         }
 
         // Make the GET request to the API.
-        $response = $this->makeRequest($params,'get');
+        $response = $this->makeRequest($params, 'get');
 
         // Fix the date to be CI I18n\Time object
-        if(isset($response['createdAt'])){
-            $response['createdAt']=\CodeIgniter\I18n\Time::parse($response['createdAt']);
+        if (!empty($response['createdAt'])) {
+            $response['createdAt'] = \CodeIgniter\I18n\Time::parse($response['createdAt']);
         }
-        if(isset($response['updatedAt'])){
-            $response['updatedAt']=\CodeIgniter\I18n\Time::parse($response['updatedAt']);
+        if (!empty($response['updatedAt'])) {
+            $response['updatedAt'] = \CodeIgniter\I18n\Time::parse($response['updatedAt']);
         }
 
         // Cache the response data
-        if($this->config->cacheDuration > 0) {
+        if ($this->config->cacheDuration > 0) {
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
-        
+
         return $response['post'];
     }
 
@@ -198,8 +202,8 @@ class Content
     {
         // Define the cache key for categories.
         $cacheKey = 'dg_content_categories';
-        if($websiteOnly) {
-            $cacheKey .= '_'.$this->config->websiteKey;
+        if ($websiteOnly) {
+            $cacheKey .= '_' . $this->config->websiteKey;
         }
 
         // Attempt to retrieve data from cache.
@@ -209,18 +213,18 @@ class Content
 
         // Define query parameters with 'resource' set to 'categories'.
         $params = ['resource' => 'categories'];
-        if($websiteOnly) {
+        if ($websiteOnly) {
             $params['website'] = $this->config->websiteKey;
         }
 
         // Make the GET request to the API.
-        $response = $this->makeRequest($params,'get');
+        $response = $this->makeRequest($params, 'get');
 
         // Cache the response data
-        if($this->config->cacheDuration > 0) {
+        if ($this->config->cacheDuration > 0) {
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
-        
+
         return $response['categories'];
     }
 
@@ -236,15 +240,15 @@ class Content
     public function updateStats(string $type, string $id, int $count = 1): ?array
     {
         // Validate required data fields.
-        if(empty($type) || empty($id)) {
+        if (empty($type) || empty($id)) {
             throw new InvalidArgumentException('Type and ID are required to update stats.');
         }
-        if($count < 1) {
+        if ($count < 1) {
             throw new InvalidArgumentException('Count must be a positive integer.');
         }
 
         // Prepare the data for the API request.
-        $data=[
+        $data = [
             'resource' => 'stats',
             'type' => $type,
             'id' => $id,
@@ -252,7 +256,7 @@ class Content
         ];
 
         // Make the POST request to the API.
-        $response = $this->makeRequest($data,'post');
+        $response = $this->makeRequest($data, 'post');
 
         // If the API call was successful, return the updated stats.
         return $response['stats'];
@@ -267,23 +271,23 @@ class Content
     protected function reviewParams(array $params): array
     {
         // Change array to string with comma separated values.
-        if(isset($params['tags']) && is_array($params['tags'])) {
+        if (isset($params['tags']) && is_array($params['tags'])) {
             $params['tags'] = implode(',', $params['tags']);
         }
-        if(isset($params['category']) && is_array($params['category'])) {
+        if (isset($params['category']) && is_array($params['category'])) {
             $params['category'] = implode(',', $params['category']);
         }
 
         // Value of offset and limit must be positive integer
-        if(isset($params['offset']) && !is_int($params['offset'])) {
+        if (isset($params['offset']) && !is_int($params['offset'])) {
             throw new InvalidArgumentException('Offset must be a positive integer.');
         }
-        if(isset($params['limit']) && !is_int($params['limit'])) {
+        if (isset($params['limit']) && !is_int($params['limit'])) {
             throw new InvalidArgumentException('Limit must be a positive integer.');
         }
 
         // value of count must be positive integer
-        if(isset($params['count']) && !is_int($params['count'])) {
+        if (isset($params['count']) && !is_int($params['count'])) {
             throw new InvalidArgumentException('Count must be a positive integer.');
         }
 
@@ -305,9 +309,9 @@ class Content
         try {
             // Validate and fix the parameters.
             $params = $this->reviewParams($params);
-            
+
             $opts = [];
-            if($method == 'get') {
+            if ($method == 'get') {
                 $opts = [
                     'query' => $params,
                 ];
@@ -317,7 +321,7 @@ class Content
                 ];
             }
             // Send the request with parameters.
-            $response = $this->http->request($method,'', $opts);
+            $response = $this->http->request($method, '', $opts);
 
             // Handle and parse the API response.
             return $this->handleResponse($response);
@@ -340,11 +344,11 @@ class Content
         // Check if the response status code indicates success.
         if ($statusCode >= 200 && $statusCode < 300) {
             // Check response is not empty (e.g., for 204 No Content).
-            if($response->getBody() == '') {
+            if ($response->getBody() == '') {
                 throw new \Exception('Empty response from the DG Content API');
             }
             // Parse the JSON response.
-            try{
+            try {
                 $body = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
             } catch (\Exception $e) {
                 throw new \Exception('Error parsing JSON response from the DG Content API');
@@ -358,7 +362,7 @@ class Content
             // Return the successful data.
             return $body;
         }
-        
+
         // Handle non-2xx status codes as an error.
         throw new \Exception('DG Content API Error: HTTP ' . $statusCode);
     }
