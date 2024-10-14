@@ -122,7 +122,7 @@ class Content
         if (!empty($response['posts'])) {
             $response['posts'] = array_map(function ($post) {
                 if (isset($post['createdAt'])) {
-                    $parsedCreatedAt = \CodeIgniter\I18n\Time::parse($post['createdAt']);
+                    $parsedCreatedAt = \CodeIgniter\I18n\Time::parse($post['post']['createdAt']);
                     $post['createdAt'] = $parsedCreatedAt; // Assign Time Object
                 }
                 if (isset($post['updatedAt'])) {
@@ -174,12 +174,14 @@ class Content
         // Make the GET request to the API.
         $response = $this->makeRequest($params, 'get');
 
+        $post = $response['post'] ?? null;
+
         // Fix the date to be CI I18n\Time object
-        if (!empty($response['post']['createdAt'])) {
-            $response['post']['createdAt'] = \CodeIgniter\I18n\Time::parse($response['createdAt']);
+        if (!empty($post['createdAt'])) {
+            $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt']);
         }
-        if (!empty($$response['post']['updatedAt'])) {
-            $response['post']['updatedAt'] = \CodeIgniter\I18n\Time::parse($response['updatedAt']);
+        if (!empty($post['updatedAt'])) {
+            $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
         }
 
         // Cache the response data
@@ -187,7 +189,7 @@ class Content
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
 
-        return $response['post'] ?? null;
+        return $post;
     }
 
     /**
