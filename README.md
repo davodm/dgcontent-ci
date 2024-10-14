@@ -68,7 +68,9 @@ $params = [
     'tags' => 'JavaScript,Node.js'
 ];
 
-$posts = $dgContent->getPosts($params);
+$posts = $dgContent
+    ->setCacheDuration(7200)
+    ->getPosts($params);
 
 if ($posts['posts']) {
     foreach ($posts['posts'] as $post) {
@@ -81,17 +83,52 @@ if ($posts['posts']) {
 
 ## Functions
 The package provides the following functions to interact with the DGTTeam Content API:
-- `getPosts($params)`: Fetch posts based on the specified parameters and return `total` (as total number for pagination) and `posts` array.
-- `getPost($id)`: Fetch a single post by ID.
-- `getCategories($websiteOnly = false)`: Fetch all available categories. If `$websiteOnly` is set to `true`, it will only return categories that have posts for the current website.
-- `updateStats($type, $id, $count=1)`: Update post statistics (views, likes, dislikes).
 
-### Parameters for `getPosts($params)`
+### `getPosts($params)`
+Fetch posts based on the specified parameters and return `total` (as total number for pagination) and `posts` array.
+
+**Parameters:**
+
 - `limit`: Number of posts to fetch (default: 10).
 - `offset`: Offset for pagination (default: 0).
-- `category`: Filter posts by category. (optional)
-- `tags`: Filter posts by tags. (optional)
+- `category`: Filter posts by category slug. could be an array or string with comma separated values. (optional)
+- `tags`: Filter posts by tags. could be an array or string with comma separated values. (optional)
 - `language`: Filter posts by language code e.g. fa, en, es, fr. (optional)
+
+**Returns:** An array with `total` (total number of posts) and `posts` array containing post objects.
+
+### `getPost($params)`
+Fetch a single post by ID or slug and return the post object.
+
+**Parameters:**
+- `id`: Post ID. (one of `id` or `slug` is required)
+- `slug`: Post slug.
+
+**Returns:** A single post object.
+
+### `getCategories(bool $websiteOnly = false)`
+Fetch all available categories. If `$websiteOnly` is set to `true`, it will only return categories that are attached to the website specified in the environment variables.
+
+**Returns:** An array of category objects.
+
+### `updateStats(string $type, string $id, int $count=1)`
+Update post statistics (views, likes, dislikes).
+
+**Parameters:**
+- `type`: Type of statistic to update (views, likes, dislikes).
+- `id`: Post ID.
+- `count`: Number of counts to add (default: 1).
+
+**Returns:** `true` if the statistics are updated successfully, `false` otherwise.
+
+### `setCacheDuration(int $duration)`
+Set the cache duration for API responses in seconds.
+
+### `setProcessResult(bool $processResult)`
+Set whether to process the API response before returning it. Default is `true`.
+
+### `clearCache()`
+Clear the cache for the API responses.
 
 ## Error Handling
 The package gracefully handles API errors and logs them for debugging purposes. If an error occurs during API requests, the package will throw an exception with a meaningful error message and you can catch it in your application to log or display the error.
