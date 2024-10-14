@@ -138,8 +138,8 @@ class Content
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
         return [
-            'posts' => $response['posts'],
-            'total' => $response['total'],
+            'posts' => $response['posts'] ?? [],
+            'total' => $response['total'] ?? 0,
         ];
     }
 
@@ -175,11 +175,11 @@ class Content
         $response = $this->makeRequest($params, 'get');
 
         // Fix the date to be CI I18n\Time object
-        if (!empty($response['createdAt'])) {
-            $response['createdAt'] = \CodeIgniter\I18n\Time::parse($response['createdAt']);
+        if (!empty($response['post']['createdAt'])) {
+            $response['post']['createdAt'] = \CodeIgniter\I18n\Time::parse($response['createdAt']);
         }
-        if (!empty($response['updatedAt'])) {
-            $response['updatedAt'] = \CodeIgniter\I18n\Time::parse($response['updatedAt']);
+        if (!empty($$response['post']['updatedAt'])) {
+            $response['post']['updatedAt'] = \CodeIgniter\I18n\Time::parse($response['updatedAt']);
         }
 
         // Cache the response data
@@ -187,7 +187,7 @@ class Content
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
 
-        return $response['post'];
+        return $response['post'] ?? null;
     }
 
     /**
@@ -225,7 +225,7 @@ class Content
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
 
-        return $response['categories'];
+        return $response['categories'] ?? [];
     }
 
     /**
