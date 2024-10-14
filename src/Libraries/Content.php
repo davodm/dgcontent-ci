@@ -32,6 +32,11 @@ class Content
     protected $cache;
 
     /**
+     * @var bool Whether to process the result or not.
+     */
+    protected $doProcess = true;
+
+    /**
      * Content Library constructor.
      *
      * Initializes the library with configuration, HTTP client, and caching.
@@ -93,6 +98,18 @@ class Content
     }
 
     /**
+     * Sets the ability to process the result or not.
+     * 
+     * @param bool $doProcess Whether to process the result or not.
+     * @return $this
+     */
+    public function setProcessResult(bool $doProcess): self
+    {
+        $this->doProcess = $doProcess;
+        return $this;
+    }
+
+    /**
      * Retrieves a list of posts from the API with optional filters.
      *
      * Implements caching to reduce API calls.
@@ -119,7 +136,7 @@ class Content
         $response = $this->makeRequest($params, 'get');
 
         // Fix the date to be CI I18n\Time object
-        if (!empty($response['posts'])) {
+        if (!empty($response['posts']) && $this->doProcess) {
             $response['posts'] = array_map(function ($post) {
                 if (!empty($post['createdAt'])) {
                     $parsedCreatedAt = \CodeIgniter\I18n\Time::parse($post['createdAt']);
@@ -128,6 +145,14 @@ class Content
                 if (!empty($post['updatedAt'])) {
                     $parsedUpdatedAt = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
                     $post['updatedAt'] = $parsedUpdatedAt; // Assign Time Object
+                }
+                // Filter website target
+                if (!empty($post['site'])){
+                    $post['site'] = array_filter($post['site'], function($site) {
+                        return $site['key'] == $this->config->websiteKey;
+                    });
+                    // Convert to single array
+                    $post['site'] = array_shift($post['site']);
                 }
                 return $post;
             }, $response['posts']);
@@ -176,12 +201,22 @@ class Content
 
         $post = $response['post'] ?? null;
 
-        // Fix the date to be CI I18n\Time object
-        if (!empty($post['createdAt'])) {
-            $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt']);
-        }
-        if (!empty($post['updatedAt'])) {
-            $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
+        if($this->doProcess){
+            // Fix the date to be CI I18n\Time object
+            if (!empty($post['createdAt'])) {
+                $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt']);
+            }
+            if (!empty($post['updatedAt'])) {
+                $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
+            }
+            // Filter website target
+            if (!empty($post['site'])){
+                $post['site'] = array_filter($post['site'], function($site) {
+                    return $site['key'] == $this->config->websiteKey;
+                });
+                // Convert to single array
+                $post['site'] = array_shift($post['site']);
+            }
         }
 
         // Cache the response data
