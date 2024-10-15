@@ -389,10 +389,10 @@ class Content
 
         // Fix the date to be CI I18n\Time object
         if (!empty($post['createdAt'])) {
-            $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt']);
+            $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt'],'UTC');
         }
         if (!empty($post['updatedAt'])) {
-            $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
+            $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt'],'UTC');
         }
 
         // Filter website target
