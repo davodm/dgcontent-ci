@@ -41,17 +41,17 @@ Store sensitive information like the API key in your .env file to keep it secure
 Add the following entries to your .env file:
 
 ```ini
-# DgContentCI Configuration
+# API Key for DGTTeam Content API
 DGCONTENT_API_KEY=your_api_key_here
-DGCONTENT_CACHE_TTL=3600       # Cache duration in seconds (default: 3600)
-DGCONTENT_WEBSITE=xxx.com           # Your website URL (without http/https)
+# Cache duration in seconds (default: 3600)
+DGCONTENT_CACHE_TTL=3600
+# Website Domain (without http/https)
+DGCONTENT_WEBSITE=xxx.com
+# Optional: Base URL for the DGTTeam Content API
+DGCONTENT_API_BASE_URL=https://xxx.com/api/
+# Optional: Request timeout in seconds (default: 10)
+DGCONTENT_TIMEOUT=10
 ```
-Parameters:
-
-* `DGCONTENT_API_KEY`: (Required) Your API key for the DGTTeam Content API.
-* `DGCONTENT_WEBSITE`: (Required) Your website URL (without http/https). Used for filtering posts by website.
-* `DGCONTENT_CACHE_TTL`: (Optional) Duration to cache API responses in seconds. Default is 3600 seconds (1 hour).
-* `DGCONTENT_API_BASE_URL` (Optional) Base URL for the DGTTeam Content API if it's different from the default.
 
 2. Configuration File
 The package comes with a configuration file located at `src/Config/DGContentCI.php`. You can customize default settings by modifying this file if necessary.
