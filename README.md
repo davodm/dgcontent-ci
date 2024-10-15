@@ -130,6 +130,42 @@ Set whether to process the API response before returning it. Default is `true`.
 ### `clearCache()`
 Clear the cache for the API responses.
 
+#### Post Object
+The post object returned by the `getPosts` and `getPost` functions contains the following properties, which may vary based on the API response:
+```php
+[
+    'id' => "xxx",
+    'title' => 'Post Title',
+    'slug' => 'post-title',
+    'featuredImage' => 'https://example.com/image.jpg',
+    'images' => [ // Images in the content
+        'https://example.com/image1.jpg',
+        'https://example.com/image2.jpg'
+        ],
+    'content' => 'Post content',
+    'category' => [
+        'title' => 'Category Title',
+        'slug' => 'category-slug'
+    ],
+    'tags' => ['Tag 1', 'Tag 2'],
+    'site' => [ // Based on processed result
+        'title' => 'Site Title',
+        'slug' => 'site-slug',
+        'url' => 'xxx.com',
+    ],
+    'stats'=> [
+        'views' => 100,
+        'likes' => 10,
+        'dislikes' => 2
+    ],
+    'language' => 'en', // Could be null or not present
+    'source' => 'https://example.com', // Could be null or not present
+    'author' => 'Author Name', // Could be null or not present
+    'createdAt' => \CodeIgniter\I18n\Time Object, // Based on processed result
+    'updatedAt' => '2024-10-14T22:26:23Z', // If it's not processed
+]
+```
+
 ## Error Handling
 The package gracefully handles API errors and logs them for debugging purposes. If an error occurs during API requests, the package will throw an exception with a meaningful error message and you can catch it in your application to log or display the error.
 
