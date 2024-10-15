@@ -34,6 +34,11 @@ class DGContentCI extends BaseConfig
     public $websiteKey;
 
     /**
+     * @var int Timeout for API requests in seconds.
+     */
+    public $timeOut;
+
+    /**
      * DgContentCI constructor.
      *
      * Initializes configuration settings from environment variables.
@@ -48,5 +53,7 @@ class DGContentCI extends BaseConfig
         $this->apiBaseUrl = getenv('DGCONTENT_API_BASE_URL') ?: $this->apiBaseUrl;
         // Retrieve website key from environment variables; default to empty string if not set.
         $this->websiteKey = getenv('DGCONTENT_WEBSITE_KEY') ?: '';
+        // Retrieve timeout from environment variables; default to 10 seconds if not set.
+        $this->timeOut = (int) getenv('DGCONTENT_TIMEOUT') ?: 10;
     }
 }

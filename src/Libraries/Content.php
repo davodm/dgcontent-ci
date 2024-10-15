@@ -75,7 +75,7 @@ class Content
                 'Authorization' => 'Bearer ' . $this->config->apiKey,
                 'Accept'        => 'application/json',
             ],
-            'timeout' => 10, // Set timeout to 10 seconds.
+            'timeout' => $this->config->timeOut, // Default 10 seconds
         ]);
 
         // Initialize the caching mechanism using CodeIgniter's Cache Manager.
