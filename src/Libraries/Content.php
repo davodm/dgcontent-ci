@@ -128,26 +128,12 @@ class Content
         $cacheKey = 'dg_content_posts_' . md5(json_encode($params));
 
         // Attempt to retrieve data from cache.
-        if ($cachedData = $this->cache->get($cacheKey)) {
-
-            // Process the result if needed
-            if(!empty($cachedData['posts']) && $this->doProcess){
-                $cachedData['posts'] = array_map(function ($post) {
-                    // Do the processing
-                    return $this->processResult($post);
-                }, $cachedData['posts']);
-            }
-        
+        if ($cachedData = $this->cache->get($cacheKey)) {        
             return $cachedData;
         }
 
         // Make the GET request to the API.
         $response = $this->makeRequest($params, 'get');
-
-        // Cache the response data for the configured duration.
-        if ($this->config->cacheDuration > 0 && !empty($response['posts'])) {
-            $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
-        }
 
         // Process the result if needed
         if(!empty($response['posts']) && $this->doProcess){
@@ -155,6 +141,11 @@ class Content
                 // Do the processing
                 return $this->processResult($post);
             }, $response['posts']);
+        }
+
+        // Cache the response data for the configured duration.
+        if ($this->config->cacheDuration > 0 && !empty($response['posts'])) {
+            $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
         }
 
         return [
@@ -188,8 +179,6 @@ class Content
 
         // Attempt to retrieve data from cache.
         if ($cachedData = $this->cache->get($cacheKey)) {
-            // Process the result if needed
-            $cachedData = $this->processResult($cachedData);
             return $cachedData;
         }
 
@@ -198,13 +187,13 @@ class Content
 
         $post = $response['post'] ?? null;
 
+        // Process the result if needed
+        $post = $this->processResult($post);
+
         // Cache the response data
         if ($this->config->cacheDuration > 0 && !empty($post)) {
             $this->cache->save($cacheKey, $post, $this->config->cacheDuration);
         }
-
-        // Process the result if needed
-        $post = $this->processResult($post);
 
         return $post;
     }
@@ -400,11 +389,19 @@ class Content
         }
 
         // Fix the date to be CI I18n\Time object
-        if (!empty($post['createdAt'])) {
-            $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt'],'UTC');
-        }
-        if (!empty($post['updatedAt'])) {
-            $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt'],'UTC');
+        $dateFields=['createdAt','updatedAt'];
+        foreach($dateFields as $field){
+            if (!empty($post[$field])) {
+                // None timestamp value
+                if(!is_numeric($post[$field]) && is_string($post[$field])){
+                    // Supporting Sanity time field format
+                    $post[$field] = \CodeIgniter\I18n\Time::createFromFormat('Y-m-d\TH:i:s\Z', $post[$field]);
+                    //$post[$field] = \CodeIgniter\I18n\Time::parse($post[$field],'UTC'); // isn't working
+                }elseif(is_numeric($post[$field])){
+                    // Timestamp value
+                    $post[$field] = \CodeIgniter\I18n\Time::createFromTimestamp($post[$field]);
+                }
+            }
         }
 
         // Filter website target
