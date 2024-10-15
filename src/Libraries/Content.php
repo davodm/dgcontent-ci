@@ -135,29 +135,14 @@ class Content
         // Make the GET request to the API.
         $response = $this->makeRequest($params, 'get');
 
-        // Fix the date to be CI I18n\Time object
-        if (!empty($response['posts']) && $this->doProcess) {
+        // Process the result if needed
+        if(!empty($response['posts']) && $this->doProcess){
             $response['posts'] = array_map(function ($post) {
-                if (!empty($post['createdAt'])) {
-                    $parsedCreatedAt = \CodeIgniter\I18n\Time::parse($post['createdAt']);
-                    $post['createdAt'] = $parsedCreatedAt; // Assign Time Object
-                }
-                if (!empty($post['updatedAt'])) {
-                    $parsedUpdatedAt = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
-                    $post['updatedAt'] = $parsedUpdatedAt; // Assign Time Object
-                }
-                // Filter website target
-                if (!empty($post['site'])){
-                    $post['site'] = array_filter($post['site'], function($site) {
-                        return $site['key'] == $this->config->websiteKey;
-                    });
-                    // Convert to single array
-                    $post['site'] = array_shift($post['site']);
-                }
-                return $post;
+                // Do the processing
+                return $this->processResult($post);
             }, $response['posts']);
         }
-
+        
         // Cache the response data for the configured duration.
         if ($this->config->cacheDuration > 0 && !empty($response['posts'])) {
             $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
@@ -201,23 +186,8 @@ class Content
 
         $post = $response['post'] ?? null;
 
-        if($this->doProcess){
-            // Fix the date to be CI I18n\Time object
-            if (!empty($post['createdAt'])) {
-                $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt']);
-            }
-            if (!empty($post['updatedAt'])) {
-                $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
-            }
-            // Filter website target
-            if (!empty($post['site'])){
-                $post['site'] = array_filter($post['site'], function($site) {
-                    return $site['key'] == $this->config->websiteKey;
-                });
-                // Convert to single array
-                $post['site'] = array_shift($post['site']);
-            }
-        }
+        // Process the result if needed
+        $post = $this->processResult($post);
 
         // Cache the response data
         if ($this->config->cacheDuration > 0 && !empty($post)) {
@@ -402,6 +372,38 @@ class Content
 
         // Handle non-2xx status codes as an error.
         throw new \Exception('DG Content API Error: HTTP ' . $statusCode);
+    }
+
+    /**
+     * Process the result to fix the date and filter website target.
+     * Also skips processing if not needed.
+     *
+     * @param array $post The post data to process.
+     * @return array Processed post data.
+     */
+    protected function processResult($post){
+        // Skip processing if not needed
+        if(!$this->doProcess || empty($post)){
+            return $post;
+        }
+
+        // Fix the date to be CI I18n\Time object
+        if (!empty($post['createdAt'])) {
+            $post['createdAt'] = \CodeIgniter\I18n\Time::parse($post['createdAt']);
+        }
+        if (!empty($post['updatedAt'])) {
+            $post['updatedAt'] = \CodeIgniter\I18n\Time::parse($post['updatedAt']);
+        }
+
+        // Filter website target
+        if (!empty($post['site'])){
+            $post['site'] = array_filter($post['site'], function($site) {
+                return $site['url'] == $this->config->websiteKey;
+            });
+            // Convert to single array
+            $post['site'] = array_shift($post['site']);
+        }
+        return $post;
     }
 
     /**
