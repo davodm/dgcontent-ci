@@ -129,11 +129,25 @@ class Content
 
         // Attempt to retrieve data from cache.
         if ($cachedData = $this->cache->get($cacheKey)) {
+
+            // Process the result if needed
+            if(!empty($cachedData['posts']) && $this->doProcess){
+                $cachedData['posts'] = array_map(function ($post) {
+                    // Do the processing
+                    return $this->processResult($post);
+                }, $cachedData['posts']);
+            }
+        
             return $cachedData;
         }
 
         // Make the GET request to the API.
         $response = $this->makeRequest($params, 'get');
+
+        // Cache the response data for the configured duration.
+        if ($this->config->cacheDuration > 0 && !empty($response['posts'])) {
+            $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
+        }
 
         // Process the result if needed
         if(!empty($response['posts']) && $this->doProcess){
@@ -142,11 +156,7 @@ class Content
                 return $this->processResult($post);
             }, $response['posts']);
         }
-        
-        // Cache the response data for the configured duration.
-        if ($this->config->cacheDuration > 0 && !empty($response['posts'])) {
-            $this->cache->save($cacheKey, $response, $this->config->cacheDuration);
-        }
+
         return [
             'posts' => $response['posts'] ?? [],
             'total' => $response['total'] ?? 0,
@@ -178,6 +188,8 @@ class Content
 
         // Attempt to retrieve data from cache.
         if ($cachedData = $this->cache->get($cacheKey)) {
+            // Process the result if needed
+            $cachedData = $this->processResult($cachedData);
             return $cachedData;
         }
 
@@ -186,13 +198,13 @@ class Content
 
         $post = $response['post'] ?? null;
 
-        // Process the result if needed
-        $post = $this->processResult($post);
-
         // Cache the response data
         if ($this->config->cacheDuration > 0 && !empty($post)) {
             $this->cache->save($cacheKey, $post, $this->config->cacheDuration);
         }
+
+        // Process the result if needed
+        $post = $this->processResult($post);
 
         return $post;
     }
