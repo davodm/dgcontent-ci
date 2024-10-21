@@ -329,7 +329,7 @@ class Content
                 ];
             }
             // Send the request with parameters.
-            $response = $this->http->request($method, '', $opts);
+            $response = $this->http->request(strtoupper($method), '', $opts);
 
             // Handle and parse the API response.
             return $this->handleResponse($response);
