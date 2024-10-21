@@ -45,15 +45,19 @@ class DGContentCI extends BaseConfig
      */
     public function __construct()
     {
-        // Retrieve API key from environment variables; default to empty string if not set.
-        $this->apiKey = getenv('DGCONTENT_API_KEY') ?: '';
-        // Retrieve cache duration from environment variables; default to 1 hour if not set.
-        $this->cacheDuration = getenv('DGCONTENT_CACHE_TTL') ?: 3600;
-        // Retrieve API base URL from environment variables; default to the DGTTeam Content API.
-        $this->apiBaseUrl = getenv('DGCONTENT_API_BASE_URL') ?: $this->apiBaseUrl;
-        // Retrieve website key from environment variables; default to empty string if not set.
-        $this->websiteKey = getenv('DGCONTENT_WEBSITE_KEY') ?: '';
-        // Retrieve timeout from environment variables; default to 10 seconds if not set.
-        $this->timeOut = (int) getenv('DGCONTENT_TIMEOUT') ?: 10;
+        // Retrieve API key from environment variables; check both 'DGCONTENT_API_KEY' and 'dgcontent.api.key'.
+        $this->apiKey = env('DGCONTENT_API_KEY') ?: env('dgcontent.api.key') ?: '';
+
+        // Retrieve cache duration from environment variables; check both 'DGCONTENT_CACHE_TTL' and 'dgcontent.cache.ttl'.
+        $this->cacheDuration = env('DGCONTENT_CACHE_TTL') ?: env('dgcontent.cache.ttl') ?: 3600;
+
+        // Retrieve API base URL from environment variables; check both 'DGCONTENT_API_BASE_URL' and 'dgcontent.api.base.url'.
+        $this->apiBaseUrl = env('DGCONTENT_API_BASE_URL') ?: env('dgcontent.api.base.url') ?: $this->apiBaseUrl;
+
+        // Retrieve website key from environment variables; check both 'DGCONTENT_WEBSITE_KEY' and 'dgcontent.website.key'.
+        $this->websiteKey = env('DGCONTENT_WEBSITE_KEY') ?: env('dgcontent.website.key') ?: '';
+
+        // Retrieve timeout from environment variables; check both 'DGCONTENT_TIMEOUT' and 'dgcontent.timeout'.
+        $this->timeOut = (int) (env('DGCONTENT_TIMEOUT') ?: env('dgcontent.timeout') ?: 10);
     }
 }
