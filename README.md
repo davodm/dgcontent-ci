@@ -106,6 +106,11 @@ Fetch a single post by ID or slug and return the post object.
 
 **Returns:** A single post object.
 
+### `getPage($slug)`
+Fetch a single page by slug and return the page object.
+
+**Returns:** A single page object.
+
 ### `getCategories(bool $websiteOnly = false)`
 Fetch all available categories. If `$websiteOnly` is set to `true`, it will only return categories that are attached to the website specified in the environment variables.
 
