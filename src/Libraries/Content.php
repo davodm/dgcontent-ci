@@ -99,7 +99,7 @@ class Content
 
     /**
      * Sets the ability to process the result or not.
-     * 
+     *
      * @param bool $doProcess Whether to process the result or not.
      * @return $this
      */
@@ -128,7 +128,7 @@ class Content
         $cacheKey = 'dg_content_posts_' . md5(json_encode($params));
 
         // Attempt to retrieve data from cache.
-        if ($cachedData = $this->cache->get($cacheKey)) {        
+        if ($cachedData = $this->cache->get($cacheKey)) {
             return $cachedData;
         }
 
@@ -136,7 +136,7 @@ class Content
         $response = $this->makeRequest($params, 'get');
 
         // Process the result if needed
-        if(!empty($response['posts']) && $this->doProcess){
+        if (!empty($response['posts']) && $this->doProcess) {
             $response['posts'] = array_map(function ($post) {
                 // Do the processing
                 return $this->processResult($post);
@@ -196,6 +196,44 @@ class Content
         }
 
         return $post;
+    }
+
+    /**
+     * Retrieves a Page by slug from the API.
+     *
+     * Implements caching to reduce API calls.
+     *
+     * @param array $slug The slug of the page.
+     * @return array|null Array of pages or null on failure.
+     */
+    public function getPage(string $slug)
+    {
+        // Ensure 'resource' parameter is set to 'page'.
+        $params = ['resource' => 'page', 'slug' => $slug];
+
+        // Generate a unique cache key based on query parameters.
+        $cacheKey = 'dg_content_page_' . md5(json_encode($params));
+
+        // Attempt to retrieve data from cache.
+        if ($cachedData = $this->cache->get($cacheKey)) {
+            return $cachedData;
+        }
+
+        // Make the GET request to the API.
+        $response = $this->makeRequest($params, 'get');
+
+        $page = $response['page'] ?? null;
+
+        // Process the result if needed
+        $page = $this->processResult($page);
+
+        // Cache the response data
+
+        if ($this->config->cacheDuration > 0 && !empty($page)) {
+            $this->cache->save($cacheKey, $page, $this->config->cacheDuration);
+        }
+
+        return $page;
     }
 
     /**
@@ -318,7 +356,7 @@ class Content
             // Validate and fix the parameters.
             $params = $this->reviewParams($params);
 
-            $opts = [];
+            $opts = ['timeout' => 10];
             if ($method == 'get') {
                 $opts = [
                     'query' => $params,
@@ -369,6 +407,8 @@ class Content
 
             // Return the successful data.
             return $body;
+        } elseif ($statusCode == 404) {
+            throw new \Exception('Requested content not found.');
         }
 
         // Handle non-2xx status codes as an error.
@@ -382,22 +422,23 @@ class Content
      * @param array $post The post data to process.
      * @return array Processed post data.
      */
-    protected function processResult($post){
+    protected function processResult($post)
+    {
         // Skip processing if not needed
-        if(!$this->doProcess || empty($post)){
+        if (!$this->doProcess || empty($post)) {
             return $post;
         }
 
         // Fix the date to be CI I18n\Time object
-        $dateFields=['createdAt','updatedAt'];
-        foreach($dateFields as $field){
+        $dateFields = ['createdAt', 'updatedAt'];
+        foreach ($dateFields as $field) {
             if (!empty($post[$field])) {
                 // None timestamp value
-                if(!is_numeric($post[$field]) && is_string($post[$field])){
+                if (!is_numeric($post[$field]) && is_string($post[$field])) {
                     // Supporting Sanity time field format
                     $post[$field] = \CodeIgniter\I18n\Time::createFromFormat('Y-m-d\TH:i:s\Z', $post[$field]);
                     //$post[$field] = \CodeIgniter\I18n\Time::parse($post[$field],'UTC'); // isn't working
-                }elseif(is_numeric($post[$field])){
+                } elseif (is_numeric($post[$field])) {
                     // Timestamp value
                     $post[$field] = \CodeIgniter\I18n\Time::createFromTimestamp($post[$field]);
                 }
@@ -405,12 +446,16 @@ class Content
         }
 
         // Filter website target
-        if (!empty($post['site'])){
-            $post['site'] = array_filter($post['site'], function($site) {
-                return $site['url'] == $this->config->websiteKey;
-            });
-            // Convert to single array
-            $post['site'] = array_shift($post['site']);
+        if (!empty($post['site'])) {
+            // Array Model
+            if (isset($post['site'][0])) {
+                $post['site'] = array_filter($post['site'], function ($site) {
+                    return $site['url'] == $this->config->websiteKey;
+                });
+
+                // Convert to single array
+                $post['site'] = array_shift($post['site']);
+            }
         }
         return $post;
     }
