@@ -340,6 +340,11 @@ class Content
         // Add the website key to the parameters.
         $params['website'] = $this->config->websiteKey;
 
+        // Remove params with null/undefined value only (zero is valid)
+        $params = array_filter($params, function ($value) {
+            return $value !== null;
+        });
+
         return $params;
     }
 
